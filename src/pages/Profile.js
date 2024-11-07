@@ -8,7 +8,7 @@ const Profile = () => {
   const [tickets, setTickets] = useState([]);
   const [open, setOpen] = useState(false);
   const [editInfo, setEditInfo] = useState({ fullname: '', email: '', password: '', phone: '' });
-  const username = document.cookie.replace(/(?:(?:^|.*;\s*)username\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+  const username = document.cookie.replace(/(?:(?:^|.*;\s*)username\s*=\s*([^;]*).*$)|^.*$/, "$1");
 
   useEffect(() => {
     axios.post('/user/me', { username }).then(res => setUserInfo(res.data));
