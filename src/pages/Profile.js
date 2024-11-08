@@ -12,8 +12,11 @@ import {
   TextField,
   Box,
   CircularProgress,
-  Alert
+  Alert,
+  IconButton
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import Cookies from 'js-cookie';
 
 const Profile = () => {
   const [userData, setUserData] = useState({ full_name: '', email: '', password: '', phone: '' });
@@ -36,14 +39,29 @@ const Profile = () => {
   const fetchTickets = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`/user/tickets?Username=${username}`);
-      setTickets(response.data);
-      setDialogOpen(true);
+      // Check if tickets already exist in the cookie
+      const storedTickets = Cookies.get('tickets');
+      if (storedTickets) {
+        setTickets(JSON.parse(storedTickets)); // If tickets are already in the cookie, use them
+        setDialogOpen(true); // Open the dialog to show the stored tickets
+      } else {
+        // If tickets are not in the cookie, fetch new tickets from the server
+        const response = await axios.get(`/user/tickets?Username=${username}`);
+        setTickets(response.data);
+        // Store the fetched tickets in a cookie (without expiration to make it session-based)
+        Cookies.set('tickets', JSON.stringify(response.data)); // Session cookie (no expiration)
+        setDialogOpen(true);
+      }
     } catch (error) {
       console.error("Error fetching tickets:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    setTickets([]); // Clear tickets when closing the dialog
   };
 
   const handleProfileUpdate = async () => {
@@ -75,7 +93,7 @@ const Profile = () => {
   };
 
   return (
-    <Container>
+    <Container sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', padding: 3 }}>
       <Typography variant="h4">Profile</Typography>
       <Typography variant="body1">Full Name: {userData.full_name}</Typography>
       <Typography variant="body1">Username: {userData.username}</Typography>
@@ -146,8 +164,20 @@ const Profile = () => {
       </Dialog>
 
       {/* Dialog for Displaying Tickets */}
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} fullWidth maxWidth="sm">
-        <DialogTitle>Your Tickets</DialogTitle>
+      <Dialog open={dialogOpen} onClose={handleCloseDialog} fullWidth maxWidth="sm">
+        <DialogTitle>
+          Your Tickets
+          {/* Close button for the dialog */}
+          <IconButton
+            edge="end"
+            color="inherit"
+            onClick={handleCloseDialog}
+            aria-label="close"
+            sx={{ position: 'absolute', right: 8, top: 8 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
         <DialogContent dividers>
           {tickets.length === 0 ? (
             <Typography>No tickets bought yet.</Typography>

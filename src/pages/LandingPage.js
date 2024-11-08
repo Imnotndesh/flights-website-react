@@ -3,9 +3,9 @@ import React from 'react';
 import { Container, Typography, Box, Grid } from '@mui/material';
 
 const LandingPage = () => (
-  <Container maxWidth="md">
+  <Container sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column',padding:3 }}>
     <Box my={5} textAlign="center">
-      <Typography variant="h4">Welcome to Airplane Booking</Typography>
+      <Typography variant="h4">Welcome to Kori!</Typography>
     </Box>
     <Grid container spacing={4}>
       <Grid item xs={12} sm={4}>
