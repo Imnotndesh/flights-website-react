@@ -1,55 +1,171 @@
-// src/pages/Profile.js
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Typography, Button, Box, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
+import {
+  Container,
+  Typography,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Card,
+  CardContent,
+  TextField,
+  Box,
+  CircularProgress,
+  Alert
+} from '@mui/material';
 
 const Profile = () => {
-  const [userInfo, setUserInfo] = useState({});
+  const [userData, setUserData] = useState({ full_name: '', email: '', password: '', phone: '' });
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState(null);
+  const [passwordBlankError, setPasswordBlankError] = useState(null);
   const [tickets, setTickets] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [editInfo, setEditInfo] = useState({ fullname: '', email: '', password: '', phone: '' });
+  const [loading, setLoading] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+
   const username = document.cookie.replace(/(?:(?:^|.*;\s*)username\s*=\s*([^;]*).*$)|^.*$/, "$1");
 
   useEffect(() => {
-    axios.post('/user/me', { username }).then(res => setUserInfo(res.data));
-    axios.get(`/tickets?username=${username}`).then(res => setTickets(res.data));
+    axios.post('/user/me', { username }).then((response) => {
+      setUserData(response.data);
+    });
   }, [username]);
 
-  const handleEditProfile = () => {
-    axios.post('/user/me/edit', editInfo)
-      .then(res => { if (res.status === 200) setOpen(false); });
+  const fetchTickets = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`/user/tickets?Username=${username}`);
+      setTickets(response.data);
+      setDialogOpen(true);
+    } catch (error) {
+      console.error("Error fetching tickets:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleProfileUpdate = async () => {
+    // Check if password is empty
+    if (!userData.password) {
+      setPasswordBlankError("Password cannot be blank.");
+      return;
+    }
+
+    // Reset any previous error messages
+    setPasswordBlankError(null);
+
+    // Check if password and confirm password match
+    if (userData.password !== confirmPassword) {
+      setPasswordError("Passwords do not match.");
+      return;
+    }
+
+    // Reset password error if no issues
+    setPasswordError(null);
+
+    try {
+      await axios.put('/user/me/edit', userData);
+      setEditDialogOpen(false);
+      alert("Profile updated successfully");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
   };
 
   return (
     <Container>
       <Typography variant="h4">Profile</Typography>
-      <Typography variant="body1">Name: {userInfo.fullname}</Typography>
-      <Typography variant="body1">Email: {userInfo.email}</Typography>
-      <Typography variant="body1">Phone: {userInfo.phone}</Typography>
+      <Typography variant="body1">Full Name: {userData.full_name}</Typography>
+      <Typography variant="body1">Username: {userData.username}</Typography>
+      <Typography variant="body1">Email: {userData.email}</Typography>
+      <Typography variant="body1">Phone: {userData.phone}</Typography>
 
-      <Button variant="outlined" onClick={() => setOpen(true)}>Update Profile</Button>
-      <Dialog open={open} onClose={() => setOpen(false)}>
-        <DialogTitle>Edit Profile</DialogTitle>
-        <DialogContent>
-          <TextField label="Full Name" fullWidth value={editInfo.fullname} onChange={(e) => setEditInfo({ ...editInfo, fullname: e.target.value })} />
-          <TextField label="Email" fullWidth value={editInfo.email} onChange={(e) => setEditInfo({ ...editInfo, email: e.target.value })} />
-          <TextField label="Password" type="password" fullWidth value={editInfo.password} onChange={(e) => setEditInfo({ ...editInfo, password: e.target.value })} />
-          <TextField label="Phone Number" fullWidth value={editInfo.phone} onChange={(e) => setEditInfo({ ...editInfo, phone: e.target.value })} />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={handleEditProfile}>Save</Button>
-        </DialogActions>
-      </Dialog>
+      {/* Update Profile Button */}
+      <Box my={2}>
+        <Button variant="contained" onClick={() => setEditDialogOpen(true)}>Update Profile</Button>
+      </Box>
 
-      <Box my={3}>
-        <Typography variant="h5">Ticket History</Typography>
-        {tickets.length > 0 ? (
-          tickets.map(ticket => <Typography key={ticket.id}>Flight: {ticket.flightId}, Seats: {ticket.seats}</Typography>)
-        ) : (
-          <Typography>No tickets bought</Typography>
+      {/* View Tickets Button */}
+      <Box my={2}>
+        {loading ? <CircularProgress /> : (
+          <Button variant="contained" onClick={fetchTickets}>View Tickets</Button>
         )}
       </Box>
+
+      {/* Dialog for Updating Profile */}
+      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} fullWidth maxWidth="sm">
+        <DialogTitle>Update Profile</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Full Name"
+            fullWidth
+            margin="normal"
+            value={userData.full_name}
+            onChange={(e) => setUserData({ ...userData, full_name: e.target.value })}
+          />
+          <TextField
+            label="Email"
+            fullWidth
+            margin="normal"
+            value={userData.email}
+            onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            required
+            fullWidth
+            margin="normal"
+            value={userData.password}
+            onChange={(e) => setUserData({ ...userData, password: e.target.value })}
+          />
+          {passwordBlankError && <Alert severity="error">{passwordBlankError}</Alert>}
+          <TextField
+            label="Confirm Password"
+            type="password"
+            required
+            fullWidth
+            margin="normal"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+          {passwordError && <Alert severity="error">{passwordError}</Alert>}
+          <TextField
+            label="Phone Number"
+            fullWidth
+            margin="normal"
+            value={userData.phone}
+            onChange={(e) => setUserData({ ...userData, phone: e.target.value })}
+          />
+          <Box my={2}>
+            <Button variant="contained" onClick={handleProfileUpdate}>Save Changes</Button>
+          </Box>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for Displaying Tickets */}
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} fullWidth maxWidth="sm">
+        <DialogTitle>Your Tickets</DialogTitle>
+        <DialogContent dividers>
+          {tickets.length === 0 ? (
+            <Typography>No tickets bought yet.</Typography>
+          ) : (
+            tickets.map((ticket, index) => (
+              <Card key={index} variant="outlined" sx={{ mb: 2 }}>
+                <CardContent>
+                  <Typography variant="h6">Flight ID: {ticket.tid}</Typography>
+                  <Typography>Flight REG: {ticket.reg_no}</Typography>
+                  <Typography>Depature Time: {ticket.departure_time}</Typography>
+                  <Typography>Destination: {ticket.destination}</Typography>
+                  <Typography>Airline: {ticket.airline}</Typography>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </DialogContent>
+      </Dialog>
     </Container>
   );
 };
