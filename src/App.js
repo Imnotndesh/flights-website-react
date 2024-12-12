@@ -9,6 +9,7 @@ import Flights from './pages/Flights';
 import Registration from './pages/Registration';
 import Login from './pages/Login';
 import Contacts from './pages/Contacts';
+import AdminLogin from './pages/AdminLogin';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/register" element={<Registration />} />
         <Route path="/login" element={<Login />} />
         <Route path="/contacts" element={<Contacts />} />
+        <Route path="/admin" element={<AdminLogin />} />
       </Routes>
       <Footer />
     </Router>
