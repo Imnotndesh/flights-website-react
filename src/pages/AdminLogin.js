@@ -1,9 +1,21 @@
 // src/pages/AdminLogin.js
 import React, { useState } from 'react';
-import { Container, TextField, Button, Typography, Box, Dialog, DialogTitle, DialogContent, DialogActions, IconButton } from '@mui/material';
+import {
+    Container,
+    TextField,
+    Button,
+    Typography,
+    Box,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    IconButton,
+} from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
 const AdminLogin = () => {
     const navigate = useNavigate();
@@ -24,8 +36,8 @@ const AdminLogin = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const { data } = await axios.post('http://localhost:9080/admin/login', formData);
-            document.cookie = `username=${data.username}; path=/;`;
+            await axios.post('/admins/login', formData);
+            document.cookie = `username=${formData.username}; path=/;`;
             document.cookie = `role=admin; path=/;`;
             navigate('/dashboard');
         } catch (error) {
@@ -39,8 +51,8 @@ const AdminLogin = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const { data } = await axios.post('http://localhost:9080/admin/register', registerData);
-            document.cookie = `username=${data.username}; path=/;`;
+            await axios.post('/admins/register', registerData);
+            document.cookie = `username=${registerData.username}; path=/;`;
             document.cookie = `role=admin; path=/;`;
             navigate('/dashboard');
         } catch (error) {
@@ -60,9 +72,11 @@ const AdminLogin = () => {
                     p: 4,
                     boxShadow: 3,
                     textAlign: 'center',
+                    alignItems: 'center',
                 }}
             >
-                <Typography variant="h5" gutterBottom>
+                <LockOutlinedIcon />
+                <Typography variant="h5"  gutterBottom>
                     Admin Login
                 </Typography>
                 <form onSubmit={handleSubmit}>
@@ -95,7 +109,7 @@ const AdminLogin = () => {
                     </Button>
                 </form>
                 <Button
-                    color="secondary"
+                    color="primary.main"
                     sx={{ mt: 2 }}
                     onClick={() => setOpenRegisterDialog(true)}
                 >

@@ -10,23 +10,30 @@ import Registration from './pages/Registration';
 import Login from './pages/Login';
 import Contacts from './pages/Contacts';
 import AdminLogin from './pages/AdminLogin';
+import AdminDashboard from "./pages/AdminDashboard";
+
 
 function App() {
-  return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/flights" element={<Flights />} />
-        <Route path="/register" element={<Registration />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/contacts" element={<Contacts />} />
-        <Route path="/admin" element={<AdminLogin />} />
-      </Routes>
-      <Footer />
-    </Router>
-  );
+    return (
+        <Router>
+            <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+                <Navbar />
+                <main style={{ flex: 1 }}>
+                    <Routes>
+                        <Route path="/" element={<LandingPage />} />
+                        <Route path="/profile" element={<Profile />} />
+                        <Route path="/flights" element={<Flights />} />
+                        <Route path="/register" element={<Registration />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/contacts" element={<Contacts />} />
+                        <Route path="/admin" element={<AdminLogin />} />
+                        <Route path="/dashboard" element={<AdminDashboard />} />
+                    </Routes>
+                </main>
+                <Footer />
+            </div>
+        </Router>
+    );
 }
 
 export default App;

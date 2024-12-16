@@ -1,6 +1,6 @@
 // src/components/Navbar.js
 import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, Button, Tooltip, Box } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Tooltip} from '@mui/material';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
@@ -17,7 +17,7 @@ const Navbar = () => {
   const [username, setUsername] = useState(
       document.cookie.replace(/(?:^|.*;\s*)username\s*=\s*([^;]*).*$|^.*$/, "$1")
   );
-  const isAdmin = document.cookie.includes("role=admin");
+  // const isAdmin = document.cookie.includes("role=admin");
 
   const handleLogout = () => {
     document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
