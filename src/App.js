@@ -11,7 +11,7 @@ import Login from './pages/Login';
 import Contacts from './pages/Contacts';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from "./pages/AdminDashboard";
-
+import EditData from './pages/EditData';
 
 function App() {
     return (
@@ -28,6 +28,7 @@ function App() {
                         <Route path="/contacts" element={<Contacts />} />
                         <Route path="/admin" element={<AdminLogin />} />
                         <Route path="/dashboard" element={<AdminDashboard />} />
+                        <Route path="/editdata" element={<EditData />} />
                     </Routes>
                 </main>
                 <Footer />
